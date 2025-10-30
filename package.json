@@ -10,7 +10,11 @@
   "scripts": {
     "start": "node src/cli.js",
     "dev": "node --watch src/cli.js",
-    "web": "node src/web/server.js"
+    "web:server": "cd src/web/server && npm run dev",
+    "web:client": "cd src/web/client && npm run dev",
+    "web:dev": "concurrently \"npm run web:server\" \"npm run web:client\"",
+    "web:build": "cd src/web/client && npm run build",
+    "web:preview": "cd src/web/client && npm run preview"
   },
   "keywords": [
     "ai",
@@ -26,8 +30,10 @@
     "ollama": "^0.5.0",
     "commander": "^11.1.0",
     "chalk": "^5.3.0",
-    "ora": "^8.0.1",
-    "express": "^4.18.2"
+    "ora": "^8.0.1"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   },
   "engines": {
     "node": ">=18.0.0"
