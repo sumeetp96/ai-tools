@@ -2,24 +2,28 @@
   "name": "ai-tools-client",
   "version": "0.1.0",
   "type": "module",
+  "engines": {
+    "node": ">=24.0.0"
+  },
   "scripts": {
     "dev": "vite --port 5847",
     "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.20.0",
-    "react-dropzone": "^14.2.3",
-    "react-diff-viewer-continued": "^3.3.1",
-    "lucide-react": "^0.294.0"
+    "lucide-react": "^0.552.0",
+    "react": "^18.3.1",
+    "react-diff-viewer-continued": "^3.4.0",
+    "react-dom": "^18.3.1",
+    "react-dropzone": "^14.3.8",
+    "react-router-dom": "^7.1.1"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.2.1",
-    "vite": "^5.0.8",
-    "tailwindcss": "^3.3.6",
-    "autoprefixer": "^10.4.16",
-    "postcss": "^8.4.32"
+    "@tailwindcss/postcss": "^4.1.16",
+    "@vitejs/plugin-react": "^5.1.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.16",
+    "vite": "^7.1.12"
   }
 }
