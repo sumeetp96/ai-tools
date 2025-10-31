@@ -4,6 +4,7 @@ import Sidebar from "./components/Sidebar";
 import { AppProvider } from "./context/AppContext";
 import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
+import Html2Md from "./pages/Html2Md";
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
             <main className="flex-1 overflow-hidden">
               <Routes>
                 <Route path="/" element={<Dashboard />} />
+                <Route path="/html2md" element={<Html2Md />} />
                 <Route path="/settings" element={<Settings />} />
               </Routes>
             </main>

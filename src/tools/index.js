@@ -1,7 +1,9 @@
 import CompressTool from "./compress.js";
+import Html2MdTool from "./html2md.js";
 
 const TOOLS = {
   compress: CompressTool,
+  html2md: Html2MdTool,
 };
 
 class ToolRegistry {

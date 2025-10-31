@@ -6,6 +6,8 @@ import { fileURLToPath } from "url";
 import configRoutes from "./routes/config.js";
 import providersRoutes from "./routes/providers.js";
 import toolsRoutes from "./routes/tools.js";
+import html2mdRoutes from "./routes/html2md.js";
+import compressChunkedRoutes from "./routes/compress-chunked.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,6 +32,8 @@ try {
 app.use("/api/tools", toolsRoutes);
 app.use("/api/config", configRoutes);
 app.use("/api/providers", providersRoutes);
+app.use("/api/html2md", html2mdRoutes);
+app.use("/api/compress-chunked", compressChunkedRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {
