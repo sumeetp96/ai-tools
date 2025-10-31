@@ -118,6 +118,20 @@ export default function Dashboard() {
 
     try {
       const result = await api.uploadFile(currentTool, file, options);
+
+      // Set both input and output
+      setInput(result.input);
+      setOutput(result.output);
+      setStats(result.stats);
+
+      // Add to history
+      addToHistory({
+        tool: currentTool,
+        input: result.input,
+        output: result.output,
+        options,
+      });
+
       setProcessing(false);
       return result;
     } catch (error) {

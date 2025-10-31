@@ -15,8 +15,8 @@ export default function InputPanel({ value, onChange, onFileUpload }) {
       setUploadedFile(file);
 
       try {
-        const result = await onFileUpload(file);
-        onChange(result.input);
+        await onFileUpload(file);
+        // Don't need to call onChange here - parent handles it
       } catch (error) {
         alert(`Upload failed: ${error.message}`);
         setUploadedFile(null);
@@ -24,7 +24,7 @@ export default function InputPanel({ value, onChange, onFileUpload }) {
         setUploading(false);
       }
     },
-    [onFileUpload, onChange]
+    [onFileUpload]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({

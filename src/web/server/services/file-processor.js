@@ -1,5 +1,5 @@
 import fs from "fs/promises";
-import pdfParse from "pdf-parse";
+import { PDFParse } from "pdf-parse";
 import Tesseract from "tesseract.js";
 import uploadConfig from "../config/uploads.js";
 
@@ -54,16 +54,20 @@ class FileProcessor {
   async processPDF(file) {
     try {
       const dataBuffer = await fs.readFile(file.path);
-      const data = await pdfParse(dataBuffer);
+
+      const parser = new PDFParse({ data: dataBuffer });
+      const text = await parser.getText();
+      const details = await parser.getInfo({ parsePageInfo: true });
+      await parser.destroy();
 
       return {
-        text: data.text,
+        text,
         filename: file.originalname,
         size: file.size,
         type: "pdf",
         metadata: {
-          pages: data.numpages,
-          info: data.info,
+          pages: details.total,
+          info: details.info,
         },
       };
     } catch (error) {
