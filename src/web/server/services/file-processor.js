@@ -56,9 +56,12 @@ class FileProcessor {
       const dataBuffer = await fs.readFile(file.path);
 
       const parser = new PDFParse({ data: dataBuffer });
-      const text = await parser.getText();
+      const result = await parser.getText();
       const details = await parser.getInfo({ parsePageInfo: true });
       await parser.destroy();
+
+      // Extract text - handle both string and object returns
+      const text = typeof result === 'string' ? result : (result.text || String(result));
 
       return {
         text,

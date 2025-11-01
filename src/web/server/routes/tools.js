@@ -95,7 +95,9 @@ router.post("/:toolName/upload", upload.single("file"), async (req, res) => {
     // Clean up uploaded file
     await fileProcessor.cleanup(file.path);
 
-    if (!text || !text.trim()) {
+    // Ensure text is a string
+    const textContent = String(text || "");
+    if (!textContent.trim()) {
       return res.status(400).json({ error: "No text content found in file" });
     }
 
@@ -120,15 +122,15 @@ router.post("/:toolName/upload", upload.single("file"), async (req, res) => {
     }
 
     const tool = ToolRegistry.create(toolName, provider);
-    const result = await tool.execute(text, parsedOptions);
+    const result = await tool.execute(textContent, parsedOptions);
 
     res.json({
       output: result,
-      input: text,
+      input: textContent,
       stats: {
-        inputLength: text.length,
+        inputLength: textContent.length,
         outputLength: result.length,
-        compressionRatio: ((1 - result.length / text.length) * 100).toFixed(1),
+        compressionRatio: ((1 - result.length / textContent.length) * 100).toFixed(1),
       },
       file: {
         filename,

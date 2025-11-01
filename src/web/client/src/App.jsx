@@ -16,7 +16,7 @@ export default function App() {
           <div className="flex-1 flex overflow-hidden">
             <Sidebar />
 
-            <main className="flex-1 overflow-hidden">
+            <main className="flex-1 overflow-auto">
               <Routes>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/html2md" element={<Html2Md />} />

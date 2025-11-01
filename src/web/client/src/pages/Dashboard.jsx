@@ -23,13 +23,32 @@ export default function Dashboard() {
   const [processing, setProcessing] = useState(false);
   const [stats, setStats] = useState(null);
   const [streamController, setStreamController] = useState(null);
+  const [currentRequestId, setCurrentRequestId] = useState(null);
   const [error, setError] = useState(null);
   const [chunkingProgress, setChunkingProgress] = useState(null);
+  const [progressStatus, setProgressStatus] = useState("");
+  const [startTime, setStartTime] = useState(null);
+  const [elapsedTime, setElapsedTime] = useState(0);
 
   // Load default config on mount
   useEffect(() => {
     loadConfig();
   }, []);
+
+  // Timer to track elapsed time during processing
+  useEffect(() => {
+    let interval;
+    if (processing && startTime) {
+      interval = setInterval(() => {
+        setElapsedTime(Math.floor((Date.now() - startTime) / 1000));
+      }, 1000);
+    } else {
+      setElapsedTime(0);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [processing, startTime]);
 
   const loadConfig = async () => {
     try {
@@ -60,19 +79,25 @@ export default function Dashboard() {
       return;
     }
 
+    const requestStartTime = Date.now();
     setProcessing(true);
     setOutput("");
     setStats(null);
     setError(null);
     setIntermediateMarkdown("");
     setChunkingProgress(null);
+    setProgressStatus("Starting compression...");
+    setCurrentRequestId(requestStartTime.toString());
+    setStartTime(requestStartTime);
+    setElapsedTime(0);
 
     try {
       let finalInput = textInput;
 
       // Handle URL input - convert to markdown first
       if (inputType === "url") {
-        try {
+        setProgressStatus("Converting URL to markdown...");
+        try{
           const response = await fetch("http://localhost:3842/api/html2md/convert", {
             method: "POST",
             headers: {
@@ -98,6 +123,7 @@ export default function Dashboard() {
 
       // Handle file input
       if (inputType === "file") {
+        setProgressStatus("Processing uploaded file...");
         const result = await api.uploadFile(currentTool, fileInput, options);
         finalInput = result.input;
         setTextInput(finalInput); // Update text input with file content
@@ -116,6 +142,7 @@ export default function Dashboard() {
       }
 
       // Use chunked compression API for better handling of large content
+      setProgressStatus("Sending request to AI...");
       const response = await fetch("http://localhost:3842/api/compress-chunked", {
         method: "POST",
         headers: {
@@ -133,9 +160,19 @@ export default function Dashboard() {
       }
 
       const result = await response.json();
+      const totalElapsed = Math.floor((Date.now() - requestStartTime) / 1000);
+      setProgressStatus(`Processing complete in ${totalElapsed}s!`);
+
       setOutput(result.output);
-      setStats(result.stats);
+      setStats({
+        ...result.stats,
+        elapsedTime: totalElapsed,
+      });
+      setCurrentRequestId(result.requestId);
       setProcessing(false);
+
+      // Clear progress status after a short delay
+      setTimeout(() => setProgressStatus(""), 2000);
 
       // Show chunking info if content was chunked
       if (result.stats.chunked) {
@@ -155,16 +192,34 @@ export default function Dashboard() {
         options,
       });
     } catch (error) {
-      setError(`Error: ${error.message}`);
+      const totalElapsed = Math.floor((Date.now() - requestStartTime) / 1000);
+      setError(`Error after ${totalElapsed}s: ${error.message}`);
       setProcessing(false);
+      setProgressStatus("");
     }
   };
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
     if (streamController) {
       streamController.close();
       setStreamController(null);
       setProcessing(false);
+      return;
+    }
+
+    // Cancel non-streaming request
+    if (currentRequestId) {
+      try {
+        await fetch(`http://localhost:3842/api/compress-chunked/${currentRequestId}`, {
+          method: "DELETE",
+        });
+        setProcessing(false);
+        setCurrentRequestId(null);
+        setError("Operation cancelled by user");
+      } catch (err) {
+        console.error("Failed to cancel request:", err);
+        setError("Failed to cancel operation");
+      }
     }
   };
 
@@ -244,17 +299,16 @@ export default function Dashboard() {
             )}
             <button
               onClick={processing ? handleCancel : handleExecute}
-              disabled={processing && !options.stream}
               className={`flex items-center space-x-2 px-6 py-2 rounded-lg font-medium transition-colors ${
-                processing && options.stream
+                processing
                   ? "bg-red-600 hover:bg-red-700 text-white"
-                  : "btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                  : "btn-primary"
               }`}
             >
               {processing ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>{options.stream ? "Cancel" : "Processing..."}</span>
+                  <span>Cancel</span>
                 </>
               ) : (
                 <>
@@ -265,6 +319,23 @@ export default function Dashboard() {
             </button>
           </div>
         </div>
+
+        {/* Progress Status Bar */}
+        {processing && progressStatus && (
+          <div className="bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800 px-6 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Loader2 className="w-4 h-4 animate-spin text-blue-600 dark:text-blue-400" />
+                <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                  {progressStatus}
+                </span>
+              </div>
+              <span className="text-sm font-mono text-blue-700 dark:text-blue-300">
+                {elapsedTime}s
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Main Content */}

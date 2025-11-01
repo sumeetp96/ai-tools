@@ -78,11 +78,21 @@ export default function OutputPanel({ value, stats, streaming }) {
       </div>
 
       {stats && (
-        <div className="mt-3 flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
+        <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
           <span>Characters: {value.length.toLocaleString()}</span>
           {stats.compressionRatio && (
             <span className="text-green-600 dark:text-green-400 font-medium">
               Saved {stats.compressionRatio}%
+            </span>
+          )}
+          {stats.elapsedTime !== undefined && (
+            <span className="text-blue-600 dark:text-blue-400 font-medium">
+              Time: {stats.elapsedTime}s
+            </span>
+          )}
+          {stats.chunked && (
+            <span className="text-yellow-600 dark:text-yellow-400">
+              {stats.chunkCount} chunks
             </span>
           )}
         </div>

@@ -12,12 +12,22 @@ export const useApp = () => {
 };
 
 export const AppProvider = ({ children }) => {
-  const [theme, setTheme] = useState(storageService.getTheme());
+  // Initialize theme from storage immediately
+  const initialTheme = storageService.getTheme();
+
+  // Apply theme synchronously before rendering
+  if (initialTheme === "dark") {
+    document.documentElement.classList.add("dark");
+  } else {
+    document.documentElement.classList.remove("dark");
+  }
+
+  const [theme, setTheme] = useState(initialTheme);
   const [currentTool, setCurrentTool] = useState("compress");
   const [history, setHistory] = useState(storageService.getHistory());
   const [presets, setPresets] = useState(storageService.getPresets());
 
-  // Apply theme to document
+  // Apply theme to document whenever it changes
   useEffect(() => {
     if (theme === "dark") {
       document.documentElement.classList.add("dark");
